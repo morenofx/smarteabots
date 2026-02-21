@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — XAU AutoTrader</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#C9A84C;--black:#080808;--surface:#141414;--surface2:#1C1C1C;--border:#2A2A2A;--text:#C8C8C8;--text-dim:#666;--red:#E05252;--green:#52C97A;--mono:'IBM Plex Mono',monospace;--display:'Bebas Neue',sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--black);color:var(--text);font-family:var(--mono);font-size:14px;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;}
+  #login-screen{width:100%;max-width:400px;text-align:center;}
+  .login-title{font-family:var(--display);font-size:48px;color:var(--gold);margin-bottom:8px;letter-spacing:0.05em;}
+  .login-sub{color:var(--text-dim);font-size:11px;letter-spacing:0.1em;margin-bottom:40px;}
+  .login-input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:14px 18px;font-family:var(--mono);font-size:14px;outline:none;margin-bottom:12px;letter-spacing:0.1em;}
+  .login-input:focus{border-color:var(--gold);}
+  .login-btn{width:100%;background:var(--gold);border:none;color:var(--black);padding:14px;font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+  .login-btn:hover{background:#E8C97A;}
+  .login-error{color:var(--red);font-size:12px;margin-top:10px;display:none;}
+  #admin-panel{display:none;width:100%;max-width:800px;}
+  .admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;}
+  .admin-title{font-family:var(--display);font-size:40px;color:var(--gold);letter-spacing:0.05em;}
+  .logout-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:8px 16px;font-family:var(--mono);font-size:11px;cursor:pointer;letter-spacing:0.08em;transition:all 0.2s;}
+  .logout-btn:hover{border-color:var(--red);color:var(--red);}
+  .form-section{background:var(--surface);border:1px solid var(--border);padding:32px;margin-bottom:24px;}
+  .form-section-title{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-group label{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);}
+  .form-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;}
+  .form-input:focus{border-color:var(--gold);}
+  .form-hint{font-size:10px;color:var(--text-dim);}
+  .mql5-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:14px;font-family:var(--mono);font-size:12px;outline:none;resize:vertical;min-height:160px;line-height:1.6;transition:border-color 0.2s;}
+  .mql5-textarea:focus{border-color:var(--gold);}
+  .import-btn{background:var(--gold);border:none;color:var(--black);padding:12px 28px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:12px;}
+  .import-btn:hover{background:#E8C97A;}
+  .import-msg{font-size:11px;margin-left:16px;display:none;}
+  .import-msg.ok{color:var(--green);}
+  .import-msg.err{color:var(--red);}
+  .equity-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+  .equity-table th{text-align:left;padding:8px 12px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border);}
+  .equity-table td{padding:6px 4px;border-bottom:1px solid rgba(42,42,42,0.4);}
+  .eq-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-family:var(--mono);font-size:13px;outline:none;width:100%;}
+  .eq-input:focus{border-color:var(--gold);}
+  .rm-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:6px 10px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all 0.2s;}
+  .rm-btn:hover{border-color:var(--red);color:var(--red);}
+  .add-row-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:8px 16px;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:0.08em;transition:all 0.2s;}
+  .add-row-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .save-bar{display:flex;align-items:center;gap:16px;margin-top:8px;}
+  .save-btn{background:var(--gold);border:none;color:var(--black);padding:14px 40px;font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+  .save-btn:hover{background:#E8C97A;}
+  .save-btn:disabled{opacity:0.4;cursor:not-allowed;}
+  #save-msg{font-size:12px;display:none;}
+  #save-msg.ok{color:var(--green);}
+  #save-msg.err{color:var(--red);}
+  .view-link{display:inline-block;margin-top:24px;color:var(--text-dim);font-size:11px;text-decoration:none;border:1px solid var(--border);padding:8px 16px;transition:all 0.2s;}
+  .view-link:hover{border-color:var(--gold);color:var(--gold);}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-title">ADMIN</div>
+  <div class="login-sub">XAU AutoTrader · Dashboard Management</div>
+  <input type="password" class="login-input" id="pwd-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter') login()">
+  <button class="login-btn" onclick="login()">ACCESS PANEL</button>
+  <div class="login-error" id="login-error">Incorrect password</div>
+</div>
+
+<div id="admin-panel">
+  <div class="admin-header">
+    <div class="admin-title">DASHBOARD EDITOR</div>
+    <button class="logout-btn" onclick="logout()">LOGOUT</button>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">⚡ Import from MQL5 — Paste &amp; Auto-Fill</div>
+    <p style="color:var(--text-dim);font-size:12px;margin-bottom:16px;">Copy the statistics from your MQL5 page and paste them here. Fields will be filled automatically.</p>
+    <textarea class="mql5-textarea" id="mql5-paste" placeholder="Paste MQL5 stats here...&#10;Trades: 25&#10;Profit Trades: 22 (88.00%)&#10;Profit Factor: 4.44&#10;Monthly growth: 54.67%&#10;..."></textarea>
+    <div style="display:flex;align-items:center;flex-wrap:wrap;">
+      <button class="import-btn" onclick="importFromMQL5()">⚡ AUTO-FILL FIELDS</button>
+      <span class="import-msg" id="import-msg"></span>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Performance Statistics</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Total Profit / Monthly Growth (%)</label>
+        <input type="number" step="0.01" class="form-input" id="f-profit" placeholder="e.g. 54.67">
+        <span class="form-hint">Positive or negative number</span>
+      </div>
+      <div class="form-group">
+        <label>Balance</label>
+        <input type="number" step="0.01" class="form-input" id="f-balance" placeholder="e.g. 1200.00">
+      </div>
+      <div class="form-group">
+        <label>Currency</label>
+        <input type="text" class="form-input" id="f-currency" placeholder="EUR" maxlength="5">
+      </div>
+      <div class="form-group">
+        <label>Max Drawdown (%)</label>
+        <input type="number" step="0.01" min="0" class="form-input" id="f-drawdown" placeholder="e.g. 11.34">
+        <span class="form-hint">Positive number, shown as negative</span>
+      </div>
+      <div class="form-group">
+        <label>Total Trades</label>
+        <input type="number" min="0" class="form-input" id="f-trades" placeholder="e.g. 25">
+      </div>
+      <div class="form-group">
+        <label>Win Rate (%)</label>
+        <input type="number" step="0.1" min="0" max="100" class="form-input" id="f-winrate" placeholder="e.g. 88.0">
+      </div>
+      <div class="form-group">
+        <label>Profit Factor</label>
+        <input type="number" step="0.01" class="form-input" id="f-pf" placeholder="e.g. 4.44">
+      </div>
+      <div class="form-group">
+        <label>Trading Since</label>
+        <input type="text" class="form-input" id="f-since" placeholder="e.g. Jan 2025">
+        <span class="form-hint">Free text label</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Equity Curve Data Points</div>
+    <p style="color:var(--text-dim);font-size:12px;margin-bottom:20px;">Add one row per time period. Label = time shown on chart. Value = balance at that point.</p>
+    <table class="equity-table">
+      <thead><tr><th style="width:40%">Label (e.g. Jan 2025)</th><th>Value (balance)</th><th style="width:60px"></th></tr></thead>
+      <tbody id="equity-rows"></tbody>
+    </table>
+    <button class="add-row-btn" onclick="addEquityRow()">+ ADD POINT</button>
+  </div>
+
+  <div class="save-bar">
+    <button class="save-btn" id="save-btn" onclick="saveData()">PUBLISH TO DASHBOARD</button>
+    <span id="save-msg"></span>
+  </div>
+  <a href="/" class="view-link">← View public dashboard</a>
+</div>
+
+<script>
+function login() {
+  const pwd = document.getElementById('pwd-input').value;
+  document.getElementById('login-error').style.display = 'none';
+  if (!pwd || pwd.length < 4) { document.getElementById('login-error').style.display = 'block'; return; }
+  sessionStorage.setItem('admin_pwd', pwd);
+  showPanel();
+}
+
+function logout() {
+  sessionStorage.removeItem('admin_pwd');
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('pwd-input').value = '';
+}
+
+async function showPanel() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-panel').style.display = 'block';
+  await loadCurrentData();
+}
+
+async function loadCurrentData() {
+  try {
+    const res = await fetch('/api/stats-get');
+    if (!res.ok) { initEmptyEquity(); return; }
+    const d = await res.json();
+    if (!d || d.profit === undefined) { initEmptyEquity(); return; }
+    document.getElementById('f-profit').value   = d.profit ?? '';
+    document.getElementById('f-balance').value  = d.balance ?? '';
+    document.getElementById('f-currency').value = d.currency ?? 'EUR';
+    document.getElementById('f-drawdown').value = d.drawdown ?? '';
+    document.getElementById('f-trades').value   = d.trades ?? '';
+    document.getElementById('f-winrate').value  = d.winrate ?? '';
+    document.getElementById('f-pf').value       = d.profitFactor ?? '';
+    document.getElementById('f-since').value    = d.since ?? '';
+    const rows = d.equityPoints || [];
+    document.getElementById('equity-rows').innerHTML = '';
+    if (rows.length === 0) { initEmptyEquity(); return; }
+    rows.forEach(p => addEquityRow(p.label, p.value));
+  } catch(e) { initEmptyEquity(); }
+}
+
+function initEmptyEquity() {
+  document.getElementById('equity-rows').innerHTML = '';
+  addEquityRow('', ''); addEquityRow('', '');
+}
+
+function addEquityRow(label='', value='') {
+  const tbody = document.getElementById('equity-rows');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><input type="text" class="eq-input" placeholder="e.g. Jan 2025" value="${esc(String(label))}"></td><td><input type="number" step="0.01" class="eq-input" placeholder="e.g. 1000" value="${value}"></td><td><button class="rm-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function importFromMQL5() {
+  const text = document.getElementById('mql5-paste').value.trim();
+  const msg = document.getElementById('import-msg');
+  msg.style.display = 'none';
+  if (!text || text.length < 10) return;
+
+  function ex(p) { const m = text.match(p); return m ? parseFloat(m[1]) : undefined; }
+  function exI(p) { const m = text.match(p); return m ? parseInt(m[1]) : undefined; }
+
+  const profit       = ex(/Monthly growth:\s*([\d.]+)%/i);
+  const winrate      = ex(/Profit Trades:.*?\(([\d.]+)%\)/i);
+  const trades       = exI(/^Trades:\s*(\d+)/im);
+  const profitFactor = ex(/Profit Factor:\s*([\d.]+)/i);
+  const drawdown     = ex(/By Balance:\s*([\d.]+)%/i) || ex(/Maximal:[^\n]*\(([\d.]+)%\)/i);
+  const cm           = text.match(/[\d.]+ (EUR|USD|GBP|JPY|CHF|AUD|CAD)/);
+  const currency     = cm ? cm[1] : undefined;
+
+  let n = 0;
+  if (profit !== undefined)       { document.getElementById('f-profit').value = profit;       n++; }
+  if (winrate !== undefined)      { document.getElementById('f-winrate').value = winrate;     n++; }
+  if (trades !== undefined)       { document.getElementById('f-trades').value = trades;       n++; }
+  if (profitFactor !== undefined) { document.getElementById('f-pf').value = profitFactor;     n++; }
+  if (drawdown !== undefined)     { document.getElementById('f-drawdown').value = drawdown;   n++; }
+  if (currency)                   { document.getElementById('f-currency').value = currency;   n++; }
+
+  msg.textContent = n > 0 ? '✓ ' + n + ' fields filled! Review then Publish.' : '✗ Could not parse. Fill manually.';
+  msg.className = 'import-msg ' + (n > 0 ? 'ok' : 'err');
+  msg.style.display = 'inline';
+}
+
+async function saveData() {
+  const pwd = sessionStorage.getItem('admin_pwd');
+  const btn = document.getElementById('save-btn');
+  const msg = document.getElementById('save-msg');
+  btn.disabled = true; msg.style.display = 'none';
+
+  const rows = document.querySelectorAll('#equity-rows tr');
+  const equityPoints = [];
+  rows.forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const label = inputs[0].value.trim();
+    const value = parseFloat(inputs[1].value);
+    if (label && !isNaN(value)) equityPoints.push({ label, value });
+  });
+
+  const payload = {
+    profit:       parseFloat(document.getElementById('f-profit').value) || 0,
+    balance:      parseFloat(document.getElementById('f-balance').value) || 0,
+    currency:     document.getElementById('f-currency').value || 'EUR',
+    drawdown:     parseFloat(document.getElementById('f-drawdown').value) || 0,
+    trades:       parseInt(document.getElementById('f-trades').value) || 0,
+    winrate:      parseFloat(document.getElementById('f-winrate').value) || 0,
+    profitFactor: parseFloat(document.getElementById('f-pf').value) || 0,
+    since:        document.getElementById('f-since').value || '',
+    equityPoints,
+    updatedAt:    new Date().toISOString()
+  };
+
+  try {
+    const res = await fetch('/api/stats-set', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-pwd': pwd },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) { msg.textContent = '✓ Dashboard updated!'; msg.className = 'ok'; }
+    else        { msg.textContent = '✗ Error saving.';      msg.className = 'err'; }
+  } catch(e)  { msg.textContent = '✗ Network error.';       msg.className = 'err'; }
+
+  msg.style.display = 'block';
+  btn.disabled = false;
+  setTimeout(() => { msg.style.display = 'none'; }, 4000);
+}
+
+function esc(s) { return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+if (sessionStorage.getItem('admin_pwd')) showPanel();
+</script>
+</body>
+</html>
