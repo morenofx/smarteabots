@@ -9,7 +9,12 @@ export default async function handler(req, res) {
   try {
     const payload = req.body;
     if (typeof payload.profit === 'undefined') return res.status(400).json({ error: 'Invalid payload' });
-    await put('xau-stats.json', JSON.stringify(payload), { access: 'public', addRandomSuffix: false, contentType: 'application/json' });
+    await put('xau-stats.json', JSON.stringify(payload), {
+      access: 'private',
+      addRandomSuffix: false,
+      contentType: 'application/json',
+      token: process.env.BLOB_READ_WRITE_TOKEN
+    });
     return res.status(200).json({ ok: true, updatedAt: payload.updatedAt });
   } catch (err) {
     console.error('stats-set error:', err);
